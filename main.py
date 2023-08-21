@@ -64,19 +64,16 @@ class Player(pygame.sprite.Sprite):
         for block in map.blocks:
             if pygame.sprite.collide_rect(self , block):
                 if self.direction == "up" :
-                    self.rect.top = block.rect.bottom+1
+                    self.rect.top = block.rect.bottom
                 if self.direction == "down" :
-                    self.rect.bottom = block.rect.top-1
+                    self.rect.bottom = block.rect.top
                 if self.direction == "left" :
-                    self.rect.left = block.rect.right+1
+                    self.rect.left = block.rect.right
                 if self.direction == "right" :
-                    self.rect.right = block.rect.left-1
+                    self.rect.right = block.rect.left
+                    
     
     def move(self , map):
-        if pygame.sprite.spritecollide(self, map.blocks , False):
-            self.speed = 5
-        else:
-            self.speed = 6
         keys =  pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
             self.direction = "right"
@@ -88,7 +85,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.right += self.speed
             
             self.collision(map)
-
         if keys[pygame.K_LEFT]:
             self.direction = "left"
             if self.rect.left < 50:
@@ -111,6 +107,7 @@ class Player(pygame.sprite.Sprite):
             
             self.collision(map)
 
+       
         if keys[pygame.K_DOWN]:
             self.direction = "down"
             if self.rect.top > 400:
@@ -205,21 +202,6 @@ while True:
     player.display()
     monster.display()
  
-    # collision between player and blocks
-    # if pygame.sprite.spritecollide(player, map.blocks , False):
-    #     if player.direction == "up" :
-    #         player.rect.top += player.speed
-    #     if player.direction == "down" :
-    #         player.rect.top -= player.speed
-    #     if player.direction == "left" :
-    #         player.rect.left += player.speed
-    #     if player.direction == "right" :
-    #         player.rect.left -= player.speed
-        
-     
-        # screen.fill("red")
-
-    # Check for collision between player and monster
     if pygame.sprite.collide_rect(player, monster):
         print("Player collided with the monster!")
 
