@@ -1,11 +1,24 @@
 import pygame
 import random
+import cv2
+import numpy as np
+
 pygame.init()
 monster_image = pygame.image.load("monster.png")
 monster_image = pygame.transform.scale(monster_image,(50,50))
 
+gameOver  = cv2.VideoCapture("you_lose.mp4")
+pygame.mixer.music.load("scary.mp3")
+pygame.mixer.music.play(-1)
+
+pygame.mixer.music.load("scary.mp3")
+pygame.mixer.music.play(-1)
+
 player_image = pygame.image.load("player.gif")
-player_image = pygame.transform.scale(player_image,(50,50))
+player_image = pygame.transform.scale(player_image,(40,40))
+player_up = pygame.transform.rotate(player_image,90)
+player_left = pygame.transform.rotate(player_image,180)
+player_down = pygame.transform.rotate(player_image,270)
 from level1 import level1
 
 screen = pygame.display.set_mode((800,500))
@@ -22,13 +35,13 @@ class Monster(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.topleft=(random.randint(1,300) ,random.randint(1,300))
         self.player = player
-        self.speed = 3
+        self.speed = 3 #3
     
     def move(self):
         if pygame.sprite.spritecollide(self, map.blocks , False):
-            self.speed = 1
+            self.speed = 2 #1
         else:
-            self.speed = 2
+            self.speed = 2 #2
         if self.player.rect.left > self.rect.left:
             self.right(self.speed)
         if self.player.rect.left < self.rect.left:
@@ -40,12 +53,16 @@ class Monster(pygame.sprite.Sprite):
 
     def up(self , speed):
         self.rect.top -= speed
+        player.image = player_up
     def down(self , speed):
         self.rect.top += speed
+        player.image = player_down
     def left(self , speed):
         self.rect.left -= speed
+        player.image = player_left
     def right(self , speed):
         self.rect.left += speed
+        player.image = player_image
 
     
 
@@ -58,11 +75,11 @@ class Monster(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = player_image
+        self.image = player_down
         #self.image.fill("yellow")
         self.rect = self.image.get_rect()
         self.rect.topleft=(400 , 300)
-        self.speed = 6
+        self.speed = 9
         self.direction = "up"
         self.alive = True
 
@@ -186,11 +203,13 @@ class Map():
                     self.blocks.add(block)
 
                 elif level1[i][j] == 0 : 
-                    floor = Floor(col , row , (67,70,75))
+                    floor = Floor(col , row , (139,134,128))
                     self.blocks.add(floor)
                     
 
     def shift(self , x=0 , y=0) :
+        player.collision(map)
+
         for block in self.blocks:
             block.rect.left += x
             block.rect.top += y
@@ -210,6 +229,18 @@ while True:
             exit()
 
     screen.fill("black")
+
+    rect,frame = gameOver.read()
+    if not rect:
+        gameOver  = cv2.VideoCapture("you_lose.mp4")
+        rect,frame = gameOver.read()
+        
+    frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+    frame = np.rot90(frame)
+    frame = cv2.flip(frame,0)
+    gameover = pygame.surfarray.make_surface(frame)
+    gameover = pygame.transform.rotate(gameover,0)
+    gameover = pygame.transform.scale(gameover,(800,500))
     # map.blocks.draw(screen)
 
     for block in map.blocks.sprites() : 
@@ -244,13 +275,13 @@ while True:
     if pygame.sprite.collide_rect(player, monster):
         print("Player collided with the monster!")
         player.alive = False
-
+#############
     if not player.alive : 
         screen.fill("red")
-        print("Game over")
+        screen.blit(gameover,(0,0))
         font = pygame.font.Font(None,40)
-        textSurface = font.render("GAME OVER",False,"black")
-        screen.blit(textSurface,(300,250))
+        #textSurface = font.render("GAME OVER",False,"black")
+        #screen.blit(textSurface,(300,250))
 
     
 
